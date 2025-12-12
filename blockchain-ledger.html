@@ -1,0 +1,35 @@
+<div class="screen">
+    <h2>Blockchain Ledger Viewer</h2>
+
+    <div id="ledgerList" class="ledger-grid"></div>
+</div>
+
+<script type="module">
+import { getLedger } from "../data/ledger.js";
+
+const ledger = getLedger();
+document.getElementById("ledgerList").innerHTML = ledger.map(b => `
+    <div class="block">
+        <p><strong>Index:</strong> ${b.index}</p>
+        <p><strong>Timestamp:</strong> ${new Date(b.timestamp).toLocaleString()}</p>
+        <p><strong>Type:</strong> ${b.type}</p>
+        <p><strong>Prev Hash:</strong> ${b.prevHash}</p>
+        <p><strong>Hash:</strong> ${b.hash}</p>
+    </div>
+`).join("");
+</script>
+
+<style>
+.ledger-grid {
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap:20px;
+}
+.block {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+    font-size:13px;
+}
+</style>

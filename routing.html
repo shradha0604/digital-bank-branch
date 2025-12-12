@@ -1,0 +1,53 @@
+<div class="screen">
+    <h2>Smart Service Routing System</h2>
+
+    <input id="routeInput" placeholder="Type your banking need… (e.g., open account, withdraw money)">
+
+    <button id="routeBtn">Find Best Path</button>
+
+    <div id="routeOutput" class="route-box"></div>
+</div>
+
+<script>
+const routes = {
+    "withdraw": "Fastest Path → Withdrawal → Receipt → Dashboard",
+    "open account": "Recommended Path → KYC → Account Opening",
+    "locker": "Path → Locker Status → Access Options",
+    "loan": "Path → Loan Calculator → Application Form",
+    "statement": "Path → Transactions → Receipt Download",
+};
+
+document.getElementById("routeBtn").onclick = () => {
+    const txt = document.getElementById("routeInput").value.toLowerCase();
+    const out = document.getElementById("routeOutput");
+
+    let match = Object.keys(routes).find(key => txt.includes(key));
+    out.innerHTML = `<p>${match ? routes[match] : "No exact match. Try: withdraw, loan, locker."}</p>`;
+};
+</script>
+
+<style>
+.route-box {
+    margin-top:20px;
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+}
+input {
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    background:#0d1117;
+    border:1px solid #30363d;
+    color:white;
+}
+button {
+    margin-top:10px;
+    padding:10px;
+    background:#00e1ff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+</style>

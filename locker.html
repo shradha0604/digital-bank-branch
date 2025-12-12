@@ -1,0 +1,64 @@
+<div class="screen">
+    <h2>Smart Locker – Live Status</h2>
+
+    <div class="locker-grid" id="lockerList"></div>
+
+    <p id="lockerMsg"></p>
+</div>
+
+<script type="module">
+import { getAllLockers, accessLocker } from "../data/locker.js";
+
+const lockers = getAllLockers();
+
+document.getElementById("lockerList").innerHTML = lockers.map(l => `
+    <div class="locker-card">
+        <h3>${l.lockerId}</h3>
+        <p><strong>Size:</strong> ${l.size}</p>
+        <p><strong>Status:</strong> ${l.available ? "Available" : "Occupied"}</p>
+        <button data-id="${l.lockerId}" ${l.available ? "" : "disabled"}>
+            ${l.available ? "Reserve Locker" : "In Use"}
+        </button>
+    </div>
+`).join("");
+
+// Click handler
+document.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.onclick = async () => {
+        const id = btn.dataset.id;
+        const result = await accessLocker(id, "CUST1001");
+
+        document.getElementById("lockerMsg").innerText =
+            `Locker ${id} accessed. Event stored on blockchain.`;
+
+        btn.innerText = "In Use";
+        btn.disabled = true;
+    };
+});
+</script>
+
+<style>
+.locker-grid {
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:20px;
+}
+.locker-card {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+}
+button {
+    margin-top:10px;
+    padding:10px;
+    background:#00e1ff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+button:disabled {
+    background:#444;
+    cursor:not-allowed;
+}
+</style>

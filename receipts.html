@@ -1,0 +1,76 @@
+<div class="screen">
+    <h2>Digital Receipts</h2>
+
+    <button id="generateReceiptBtn">Generate Latest Receipt</button>
+
+    <div id="receiptBox" class="receipt hidden">
+        <h3>NEXUS DIGITAL BANK</h3>
+        <p><strong>Receipt ID:</strong> <span id="recID"></span></p>
+        <p><strong>Customer:</strong> <span id="recCust"></span></p>
+        <p><strong>Transaction:</strong> <span id="recTxn"></span></p>
+        <p><strong>Amount:</strong> ₹<span id="recAmt"></span></p>
+        <p><strong>Date:</strong> <span id="recDate"></span></p>
+
+        <button id="downloadReceiptBtn">Download PDF</button>
+    </div>
+</div>
+
+<script type="module">
+import { DB } from "../data/mockdb.js";
+import { getTransactions } from "../data/transactions.js";
+
+// Latest receipt
+document.getElementById("generateReceiptBtn").onclick = () => {
+    const txns = getTransactions("CUST1001");
+    if (txns.length === 0) {
+        alert("No transactions yet.");
+        return;
+    }
+
+    const txn = txns[txns.length - 1];
+
+    document.getElementById("recID").innerText = txn.id;
+    document.getElementById("recCust").innerText = DB.customers[0].name;
+    document.getElementById("recTxn").innerText = txn.type;
+    document.getElementById("recAmt").innerText = txn.amount;
+    document.getElementById("recDate").innerText = new Date(txn.timestamp).toLocaleString();
+
+    document.getElementById("receiptBox").classList.remove("hidden");
+};
+
+// Download simulated PDF
+document.getElementById("downloadReceiptBtn").onclick = () => {
+    const text =
+        "NEXUS DIGITAL BANK RECEIPT\n" +
+        "Receipt ID: " + document.getElementById("recID").innerText + "\n" +
+        "Customer: " + document.getElementById("recCust").innerText + "\n" +
+        "Transaction: " + document.getElementById("recTxn").innerText + "\n" +
+        "Amount: ₹" + document.getElementById("recAmt").innerText + "\n" +
+        "Date: " + document.getElementById("recDate").innerText;
+
+    const blob = new Blob([text], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "receipt.txt";
+    link.click();
+};
+</script>
+
+<style>
+.receipt {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    margin-top:20px;
+    border:1px solid #30363d;
+}
+button {
+    margin-top:15px;
+    padding:10px 14px;
+    border:none;
+    background:#00e1ff;
+    border-radius:8px;
+    cursor:pointer;
+}
+.hidden { display:none; }
+</style>

@@ -1,0 +1,48 @@
+<div class="screen">
+    <h2>Emergency Banking Mode</h2>
+
+    <div class="emerg-grid">
+        <button class="danger" id="freezeAcc">Freeze My Account</button>
+        <button class="danger" id="blockCard">Block Debit/Credit Card</button>
+        <button class="danger" id="reportFraud">Report Fraud Incident</button>
+    </div>
+
+    <p id="emergMsg"></p>
+</div>
+
+<script type="module">
+import { addAuditLog } from "../data/audit.js";
+
+const msg = document.getElementById("emergMsg");
+
+document.getElementById("freezeAcc").onclick = () => {
+    addAuditLog("FREEZE_ACCOUNT", { custId:"CUST1001" });
+    msg.innerText = "Your account has been frozen immediately.";
+};
+
+document.getElementById("blockCard").onclick = () => {
+    addAuditLog("BLOCK_CARD", { custId:"CUST1001" });
+    msg.innerText = "Your card has been blocked.";
+};
+
+document.getElementById("reportFraud").onclick = () => {
+    addAuditLog("REPORT_FRAUD", { custId:"CUST1001" });
+    msg.innerText = "Fraud report submitted.";
+};
+</script>
+
+<style>
+.emerg-grid {
+    display:flex;
+    gap:20px;
+}
+.danger {
+    padding:15px;
+    flex:1;
+    background:#ff5b5b;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+}
+</style>

@@ -1,0 +1,79 @@
+<div class="screen">
+    <h2>Field Service Mode (Movable Branch)</h2>
+
+    <div class="field-box">
+        <h3>Offline Customer Onboarding</h3>
+        <input id="fldName" placeholder="Customer Name">
+        <input id="fldPhone" placeholder="Phone Number">
+        <button id="fldSave">Save Offline</button>
+        <p id="fldMsg"></p>
+    </div>
+
+    <div class="field-box">
+        <h3>Pending Offline Logs</h3>
+        <ul id="fldQueue"></ul>
+        <button id="fldSync">Sync When Online</button>
+    </div>
+</div>
+
+<script type="module">
+import { addFieldAgentLog, syncFieldLogs } from "../data/field-agent.js";
+import { DB } from "../data/mockdb.js";
+
+function renderQueue() {
+    const list = document.getElementById("fldQueue");
+    list.innerHTML = DB.fieldAgentLogs
+        .filter(l => !l.synced)
+        .map(l => `<li>${l.action} — ${l.payload.name || ""}</li>`)
+        .join("");
+}
+
+document.getElementById("fldSave").onclick = () => {
+    const name = document.getElementById("fldName").value;
+    const phone = document.getElementById("fldPhone").value;
+
+    if (!name || !phone) {
+        document.getElementById("fldMsg").innerText = "Fill all fields.";
+        return;
+    }
+
+    addFieldAgentLog("AGENT001", "OfflineOnboarding", { name, phone });
+    document.getElementById("fldMsg").innerText = "Saved offline.";
+    renderQueue();
+};
+
+document.getElementById("fldSync").onclick = () => {
+    syncFieldLogs();
+    document.getElementById("fldMsg").innerText = "Synced to server (simulated).";
+    renderQueue();
+};
+
+renderQueue();
+</script>
+
+<style>
+.field-box {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+    margin-bottom:20px;
+}
+input {
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:#0d1117;
+    border:1px solid #30363d;
+    border-radius:8px;
+    color:white;
+}
+button {
+    margin-top:10px;
+    padding:10px;
+    background:#00e1ff;
+    border:none;
+    cursor:pointer;
+    border-radius:8px;
+}
+</style>

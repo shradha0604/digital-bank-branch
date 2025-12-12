@@ -1,0 +1,24 @@
+<div class="screen">
+    <h2>Face Recognition Authentication</h2>
+
+    <video id="faceCam" autoplay class="camera"></video>
+    <button id="faceStart">Start Face Scan</button>
+
+    <p id="faceStatus"></p>
+</div>
+
+<script>
+document.getElementById("faceStart").onclick = () => {
+    document.getElementById("faceStatus").innerText =
+        "Scanning... Face match 98% (simulated). Access Granted.";
+};
+</script>
+
+<style>
+.camera {
+    width:300px;
+    border-radius:10px;
+    margin:20px 0;
+    background:black;
+}
+</style>

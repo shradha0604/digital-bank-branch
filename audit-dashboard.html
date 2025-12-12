@@ -1,0 +1,47 @@
+<div class="screen">
+    <h2>Admin Audit & Compliance Dashboard</h2>
+
+    <div class="audit-grid">
+        <div class="audit-card">
+            <h3>System Audit Logs</h3>
+            <ul id="auditList"></ul>
+        </div>
+
+        <div class="audit-card">
+            <h3>Fraud Events</h3>
+            <ul id="fraudList"></ul>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { getAuditLogs } from "../data/audit.js";
+import { getFraudEvents } from "../data/fraud.js";
+
+document.getElementById("auditList").innerHTML =
+    getAuditLogs().map(l =>
+        `<li>${l.eventType} — ${new Date(l.time).toLocaleString()}</li>`
+    ).join("");
+
+document.getElementById("fraudList").innerHTML =
+    getFraudEvents().map(f =>
+        `<li>Score ${f.score}% — ${new Date(f.timestamp).toLocaleString()}</li>`
+    ).join("");
+</script>
+
+<style>
+.audit-grid {
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap:20px;
+}
+.audit-card {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+}
+.audit-card ul {
+    margin-top:10px;
+}
+</style>

@@ -1,0 +1,45 @@
+<div class="screen">
+    <h2>Accessibility Mode</h2>
+
+    <button id="a11yVoice">Enable Voice Commands</button>
+    <button id="a11yBigText">Toggle Large Text</button>
+    <button id="a11yContrast">High Contrast Mode</button>
+
+    <p id="a11yMsg"></p>
+</div>
+
+<script type="module">
+import { speak } from "../utils/speech.js";
+
+const msg = document.getElementById("a11yMsg");
+
+document.getElementById("a11yVoice").onclick = () => {
+    msg.innerText = "Voice command mode enabled (simulated).";
+    speak("Voice command mode enabled.");
+};
+
+document.getElementById("a11yBigText").onclick = () => {
+    document.body.style.fontSize = document.body.style.fontSize === "20px" ? "14px" : "20px";
+    msg.innerText = "Large text toggled.";
+};
+
+document.getElementById("a11yContrast").onclick = () => {
+    document.body.classList.toggle("highContrast");
+    msg.innerText = "High contrast mode toggled.";
+};
+</script>
+
+<style>
+.highContrast {
+    background:black !important;
+    color:yellow !important;
+}
+button {
+    margin:10px 0;
+    padding:10px;
+    background:#00e1ff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+</style>

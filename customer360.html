@@ -1,0 +1,65 @@
+<div class="screen">
+    <h2>Customer 360° Profile</h2>
+
+    <div class="c360-grid">
+        <div class="card">
+            <h3>Personal Details</h3>
+            <p><strong>Name:</strong> <span id="cName"></span></p>
+            <p><strong>Email:</strong> <span id="cEmail"></span></p>
+            <p><strong>Phone:</strong> <span id="cPhone"></span></p>
+            <p><strong>Address:</strong> <span id="cAddress"></span></p>
+        </div>
+
+        <div class="card">
+            <h3>Account Details</h3>
+            <p><strong>Account No:</strong> <span id="cAccNo"></span></p>
+            <p><strong>Balance:</strong> ₹<span id="cBalance"></span></p>
+        </div>
+
+        <div class="card">
+            <h3>Locker Status</h3>
+            <p><strong>Locker ID:</strong> <span id="cLocker"></span></p>
+            <p><strong>Last Access:</strong> <span id="cLockerTime"></span></p>
+        </div>
+
+        <div class="card">
+            <h3>Notifications</h3>
+            <ul id="cNoti"></ul>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { getCustomer360 } from "../data/profile.js";
+
+const data = getCustomer360("CUST1001");
+
+document.getElementById("cName").innerText = data.info.name;
+document.getElementById("cEmail").innerText = data.info.email;
+document.getElementById("cPhone").innerText = data.info.phone;
+document.getElementById("cAddress").innerText = data.info.address;
+
+document.getElementById("cAccNo").innerText = data.accounts[0].accountNo;
+document.getElementById("cBalance").innerText = data.accounts[0].balance;
+
+document.getElementById("cLocker").innerText = data.locker?.lockerId || "No Locker";
+document.getElementById("cLockerTime").innerText =
+    data.locker?.lastAccessed ? new Date(data.locker.lastAccessed).toLocaleString() : "N/A";
+
+document.getElementById("cNoti").innerHTML =
+    data.notifications.map(n => `<li>${n.text}</li>`).join("");
+</script>
+
+<style>
+.c360-grid {
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:20px;
+}
+.card {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+}
+</style>

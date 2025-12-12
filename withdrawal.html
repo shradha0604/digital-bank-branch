@@ -1,0 +1,67 @@
+
+<div class="screen">
+    <h2>Withdraw Money</h2>
+
+    <input id="withdrawAmount" type="number" placeholder="Enter amount" />
+
+    <button id="withdrawBtn">Withdraw</button>
+
+    <p id="withdrawStatus"></p>
+</div>
+
+<script type="module">
+import { DB } from "../data/mockdb.js";
+import { newTransaction, updateBalance } from "../data/transactions.js";
+import { addBlockchainEvent } from "../data/ledger.js";
+
+document.getElementById("withdrawBtn").onclick = async () => {
+    const amt = Number(document.getElementById("withdrawAmount").value);
+    const status = document.getElementById("withdrawStatus");
+
+    if (!amt || amt <= 0) {
+        status.innerText = "Enter a valid amount.";
+        return;
+    }
+
+    const acct = DB.accounts[0];
+    if (amt > acct.balance) {
+        status.innerText = "Insufficient balance.";
+        return;
+    }
+
+    // Update balance
+    updateBalance(acct.accountNo, -amt);
+
+    // Add transaction
+    const txn = newTransaction("CUST1001", amt, "withdraw");
+
+    // Add blockchain entry
+    await addBlockchainEvent("WITHDRAWAL", txn);
+
+    status.innerText = `₹${amt} withdrawn successfully. Updated balance: ₹${acct.balance}`;
+};
+</script>
+
+<style>
+input {
+    width:100%;
+    padding:10px;
+    margin-bottom:15px;
+    background:#161b22;
+    border:1px solid #30363d;
+    border-radius:8px;
+    color:white;
+}
+button {
+    background:#00e1ff;
+    border:none;
+    padding:10px 15px;
+    font-weight:600;
+    border-radius:8px;
+    cursor:pointer;
+}
+#withdrawStatus {
+    margin-top:15px;
+    color:#58a6ff;
+}
+</style>

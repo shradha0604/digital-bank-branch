@@ -1,0 +1,64 @@
+<div class="screen">
+    <h2>AI Fraud Detection</h2>
+
+    <input type="file" id="fraudFile" accept="image/*" />
+
+    <img id="fraudPreview" class="preview hidden">
+
+    <div id="fraudStatus" class="status hidden">Scanning document…</div>
+
+    <div id="fraudOutput" class="fraud-output hidden">
+        <h3>Fraud Score: <span id="fraudScore"></span></h3>
+        <p id="fraudMsg"></p>
+    </div>
+</div>
+
+<script type="module">
+import { calculateFraudScore } from "../data/fraud.js";
+
+document.getElementById("fraudFile").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const preview = document.getElementById("fraudPreview");
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove("hidden");
+
+    const status = document.getElementById("fraudStatus");
+    status.classList.remove("hidden");
+
+    setTimeout(() => {
+        const score = calculateFraudScore({ fileName:file.name });
+
+        document.getElementById("fraudScore").innerText = score + "%";
+
+        const msg = document.getElementById("fraudMsg");
+        msg.innerText = score > 70 ?
+            "High anomaly levels detected. Document may be forged." :
+            score > 40 ?
+            "Some inconsistencies found. Manual check recommended." :
+            "Document appears authentic.";
+
+        status.classList.add("hidden");
+        document.getElementById("fraudOutput").classList.remove("hidden");
+    }, 1500);
+};
+</script>
+
+<style>
+.preview { width:100%; margin-top:10px; border-radius:10px; }
+.status {
+    background:#2b0909;
+    padding:10px;
+    margin-top:10px;
+    border-left:3px solid #ff5b5b;
+}
+.fraud-output {
+    background:#161b22;
+    padding:15px;
+    border-radius:10px;
+    margin-top:20px;
+    border:1px solid #ff5b5b;
+}
+.hidden { display:none; }
+</style>

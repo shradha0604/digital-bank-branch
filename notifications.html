@@ -1,0 +1,33 @@
+<div class="screen">
+    <h2>Notification Center</h2>
+
+    <h3>Recent Alerts</h3>
+    <ul id="notiList"></ul>
+
+    <h3>Preferences</h3>
+    <label><input type="checkbox" id="notiTXN" checked> Transaction Alerts</label><br>
+    <label><input type="checkbox" id="notiLOCK"> Locker Alerts</label><br>
+    <label><input type="checkbox" id="notiKYC" checked> KYC Updates</label>
+</div>
+
+<script type="module">
+import { getNotifications } from "../data/notifications.js";
+
+const noti = getNotifications("CUST1001");
+document.getElementById("notiList").innerHTML =
+    noti.map(n => `<li>${n.message} — ${new Date(n.time).toLocaleString()}</li>`).join("");
+
+document.querySelectorAll("input[type='checkbox']").forEach(box => {
+    box.onclick = () => alert("Preference saved (simulated).");
+});
+</script>
+
+<style>
+ul { margin-top:10px; }
+li {
+    background:#161b22;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:8px;
+}
+</style>

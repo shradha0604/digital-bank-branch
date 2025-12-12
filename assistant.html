@@ -1,0 +1,212 @@
+<div id="assistantPanel" class="assistant-panel">
+    
+    <div class="assistant-header">
+        <span>AI Assistant</span>
+        <button id="assistantClose">×</button>
+    </div>
+
+    <div class="assistant-body">
+        <div id="assistantMessages" class="assistant-messages"></div>
+
+        <div class="assistant-input-box">
+            <input id="assistantInput" placeholder="Ask me anything…" />
+            <button id="assistantSend">Send</button>
+            <button id="assistantVoice">🎤</button>
+        </div>
+    </div>
+
+    <div class="assistant-footer">
+        <select id="assistantLang">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="kn">Kannada</option>
+        </select>
+    </div>
+</div>
+
+<!-- Floating bubble -->
+<div id="assistantBubble" class="assistant-bubble hidden">
+    🤖
+</div>
+
+<script type="module">
+import { speak } from "../utils/speech.js";
+import { initSignLanguage, getGesture } from "../utils/signlang.js";  
+
+
+const panel = document.getElementById("assistantPanel");
+const bubble = document.getElementById("assistantBubble");
+const messages = document.getElementById("assistantMessages");
+const lang = document.getElementById("assistantLang");
+
+// Auto-open on dashboard load
+setTimeout(() => panel.classList.add("show"), 600);
+
+// Close → minimize to bubble
+document.getElementById("assistantClose").onclick = () => {
+    panel.classList.remove("show");
+    bubble.classList.remove("hidden");
+};
+
+// Re-open panel
+bubble.onclick = () => {
+    bubble.classList.add("hidden");
+    panel.classList.add("show");
+};
+
+// Append messages
+function addMsg(sender, text) {
+    messages.innerHTML += `
+        <div class="msg ${sender}">
+            <span>${text}</span>
+        </div>`;
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// Process text input
+document.getElementById("assistantSend").onclick = () => {
+    let txt = document.getElementById("assistantInput").value.trim();
+    if (!txt) return;
+    addMsg("user", txt);
+    processInput(txt);
+};
+
+// Voice input
+document.getElementById("assistantVoice").onclick = () => {
+    const rec = new window.webkitSpeechRecognition();
+    rec.lang = lang.value === "hi" ? "hi-IN" : lang.value === "kn" ? "kn-IN" : "en-US";
+    rec.start();
+
+    rec.onresult = (e) => {
+        const txt = e.results[0][0].transcript;
+        addMsg("user", txt);
+        processInput(txt);
+    };
+};
+
+// Sign language input (simulated)
+import { initSignLanguage, getGesture } from "../utils/signlang.js";
+
+// Start the REAL sign language detector
+initSignLanguage();
+
+// Check every 1.5 seconds for a detected gesture
+setInterval(() => {
+    const gesture = getGesture();
+    if (gesture) {
+        addMsg("user", `[Sign] ${gesture}`);
+        processInput(gesture);
+    }
+}, 1500);
+
+
+// Assistant logic
+function processInput(txt) {
+    txt = txt.toLowerCase();
+
+    let response = "I didn’t understand that. Can you repeat?";
+
+    if (txt.includes("balance")) response = "Your balance is ₹25,000.";
+    else if (txt.includes("withdraw")) response = "Opening withdrawal menu.";
+    else if (txt.includes("kyc")) response = "Opening eKYC verification.";
+    else if (txt.includes("locker")) response = "Showing locker availability.";
+    else if (txt.includes("help")) response = "You can ask me for transactions, KYC, locker info, and more.";
+
+    addMsg("bot", response);
+
+    // Speak back
+    let speakLang = lang.value === "hi" ? "hi-IN" : lang.value === "kn" ? "kn-IN" : "en-US";
+    speak(response, speakLang);
+
+    // Auto-actions (navigation)
+    if (response.includes("withdrawal")) loadScreen("withdrawal");
+    if (response.includes("kyc")) loadScreen("ekyc");
+    if (response.includes("locker")) loadScreen("locker");
+}
+</script>
+
+<style>
+    /* Panel */
+    .assistant-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 330px;
+        height: 420px;
+        background: #0d1117;
+        border: 1px solid #00e1ff;
+        border-radius: 14px;
+        box-shadow: 0 0 20px #00e1ff55;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 999999 !important;
+    }
+    
+    /* SHOW STATE */
+    .assistant-panel.show {
+        display: flex !important;
+    }
+    
+    /* Header */
+    .assistant-header {
+        background: #00e1ff;
+        color: #000;
+        font-weight: bold;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    /* Body */
+    .assistant-body {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    
+    .assistant-messages .msg {
+        margin: 8px 0;
+        padding: 8px 12px;
+        border-radius: 12px;
+        max-width: 80%;
+    }
+    .msg.user { background: #30363d; margin-left: auto; }
+    .msg.bot { background: #001f2f; }
+    
+    /* Input */
+    .assistant-input-box {
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+    }
+    .assistant-input-box input {
+        flex: 1;
+        padding: 8px;
+        background: #161b22;
+        border: 1px solid #30363d;
+        color: white;
+        border-radius: 8px;
+    }
+    
+    /* Floating bubble */
+    .assistant-bubble {
+        width: 60px;
+        height: 60px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        border-radius: 50%;
+        background: #00e1ff;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 999999 !important;
+    }
+    .hidden {
+        display: none !important;
+    }
+    </style>
+    

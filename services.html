@@ -1,0 +1,49 @@
+<div class="screen">
+    <h2>Banking Services</h2>
+
+    <div class="service-grid">
+        <div class="service">Account Opening</div>
+        <div class="service">Fund Transfers</div>
+        <div class="service">Loan Applications</div>
+        <div class="service">Card Services</div>
+        <div class="service">Fixed Deposits</div>
+        <div class="service">Bill Payments</div>
+        <div class="service">Investments</div>
+        <div class="service">Insurance</div>
+        <div class="service">Cheque Book Requests</div>
+        <div class="service">Statements</div>
+        <div class="service">Customer Support</div>
+    </div>
+
+    <p id="serviceMsg"></p>
+</div>
+
+<script>
+document.querySelectorAll(".service").forEach(s => {
+    s.onclick = () => {
+        document.getElementById("serviceMsg").innerText =
+            "Launching " + s.innerText + " service workflow… (placeholder)";
+    };
+});
+</script>
+
+<style>
+.service-grid {
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:15px;
+}
+.service {
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+    text-align:center;
+    cursor:pointer;
+    transition:0.2s;
+}
+.service:hover {
+    background:#00e1ff;
+    color:black;
+}
+</style>

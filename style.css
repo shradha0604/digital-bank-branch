@@ -1,0 +1,188 @@
+/* =========================
+   GLOBAL RESET & THEME
+   ========================= */
+
+   * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #0d1117, #020409);
+    color: #e6edf3;
+    min-height: 100vh;
+}
+
+/* =========================
+   HEADER / NAVBAR
+   ========================= */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px;
+    border-bottom: 1px solid #1f2933;
+}
+
+header h1 {
+    color: #00e1ff;
+    font-size: 22px;
+    letter-spacing: 1px;
+}
+
+nav {
+    display: flex;
+    gap: 12px;
+}
+
+nav button {
+    background: #161b22;
+    color: #e6edf3;
+    border: 1px solid #30363d;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+nav button:hover {
+    background: #00e1ff;
+    color: #000;
+}
+
+/* =========================
+   🔥 MAIN LAYOUT FIX (KEY)
+   ========================= */
+
+main#app {
+    max-width: 1100px;      /* FIXED WIDTH */
+    margin: 40px auto;      /* CENTERED */
+    padding: 20px;
+    min-height: 70vh;
+    animation: fadeIn 0.25s ease-in;
+}
+
+/* Smooth page transitions */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   SCREEN WRAPPER (MANDATORY)
+   ========================= */
+
+.screen {
+    width: 100%;
+}
+
+.screen h2 {
+    font-size: 26px;
+    margin-bottom: 24px;
+}
+
+/* =========================
+   CENTERED VARIANT (FOR FORMS)
+   ========================= */
+
+.centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========================
+   GRID SYSTEM (REUSABLE)
+   ========================= */
+
+.grid {
+    display: grid;
+    gap: 20px;
+}
+
+/* Dashboard grid */
+.dash-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* =========================
+   CARD SYSTEM (REUSABLE)
+   ========================= */
+
+.dash-card,
+.card {
+    background: linear-gradient(180deg, #161b22, #0d1117);
+    border: 1px solid #30363d;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.dash-card h3,
+.card h3 {
+    margin-bottom: 10px;
+}
+
+/* =========================
+   FORM ELEMENTS (GLOBAL)
+   ========================= */
+
+input, select, button {
+    font-size: 14px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: white;
+}
+
+button.primary {
+    background: #00e1ff;
+    color: black;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button.primary:hover {
+    opacity: 0.9;
+}
+
+/* =========================
+   AI ASSISTANT SAFETY
+   ========================= */
+
+.assistant-panel,
+.assistant-bubble {
+    z-index: 999999 !important;
+}
+.tools-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.tools-list button {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #e6edf3;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tools-list button:hover {
+    background: #00e1ff;
+    color: black;
+}

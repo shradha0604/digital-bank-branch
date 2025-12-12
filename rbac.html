@@ -1,0 +1,51 @@
+<div class="screen">
+    <h2>Role-Based Access Control</h2>
+
+    <label>Select Role:</label>
+    <select id="roleSelect">
+        <option value="customer">Customer</option>
+        <option value="agent">Field Agent</option>
+        <option value="admin">Admin</option>
+        <option value="auditor">Auditor</option>
+        <option value="manager">Service Manager</option>
+    </select>
+
+    <div id="roleOutput" class="role-box"></div>
+</div>
+
+<script type="module">
+const perms = {
+    customer: ["View Balance", "Withdraw", "Locker Access", "KYC"],
+    agent: ["Onboard Customers", "Field Transactions", "Offline Mode"],
+    admin: ["Manage Users", "Modify Permissions", "System Settings"],
+    auditor: ["View Logs", "Inspect Ledger", "Compliance Reports"],
+    manager: ["Service Oversight", "Workflow Optimization", "Support Tickets"]
+};
+
+document.getElementById("roleSelect").onchange = () => {
+    const role = document.getElementById("roleSelect").value;
+    const list = perms[role].map(p => `<li>${p}</li>`).join("");
+    document.getElementById("roleOutput").innerHTML = `<ul>${list}</ul>`;
+};
+
+// Load default
+document.getElementById("roleSelect").dispatchEvent(new Event("change"));
+</script>
+
+<style>
+.role-box {
+    margin-top:20px;
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #30363d;
+}
+select {
+    background:#161b22;
+    color:white;
+    padding:10px;
+    border:1px solid #30363d;
+    margin-top:10px;
+    border-radius:8px;
+}
+</style>

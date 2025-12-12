@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Digital Bank Branch</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- TFJS + MediaPipe for Sign Language -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <h1>NEXUS DIGITAL BANK BRANCH</h1>
+
+        <nav>
+            <button data-screen="dashboard">Dashboard</button>
+            <button data-screen="withdrawal">Withdraw</button>
+            <button data-screen="ekyc">eKYC</button>
+            <button data-screen="locker">Locker</button>
+            <button data-screen="services">Services</button>
+            <button data-screen="notifications">Notifications</button>
+            <button data-screen="customer360">Profile</button>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT AREA WHERE SCREENS LOAD -->
+    <main id="app"></main>
+
+    <!-- MAIN ROUTER / LOADER SCRIPT -->
+    <script type="module" src="main.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,70 @@
+<div class="screen">
+    <h2>eKYC – Paperless Identity Verification</h2>
+
+    <input type="file" id="kycFile" accept="image/*" />
+    
+    <div id="kycPreviewBox" class="preview hidden">
+        <img id="kycPreview">
+    </div>
+
+    <div id="kycStatus" class="status hidden">Processing Document…</div>
+
+    <div id="kycOutput" class="kyc-output hidden">
+        <h3>Extracted Details</h3>
+        <p><strong>Name:</strong> <span id="ocrName"></span></p>
+        <p><strong>DOB:</strong> <span id="ocrDOB"></span></p>
+        <p><strong>ID Number:</strong> <span id="ocrID"></span></p>
+        <p><strong>Address:</strong> <span id="ocrAddress"></span></p>
+        <p><strong>Status:</strong> Verified via OCR (simulated)</p>
+    </div>
+</div>
+
+<script type="module">
+document.getElementById("kycFile").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Preview Image
+    const previewBox = document.getElementById("kycPreviewBox");
+    const preview = document.getElementById("kycPreview");
+    preview.src = URL.createObjectURL(file);
+    previewBox.classList.remove("hidden");
+
+    // Show processing
+    const status = document.getElementById("kycStatus");
+    status.classList.remove("hidden");
+
+    // Simulate OCR extraction
+    setTimeout(() => {
+        document.getElementById("kycOutput").classList.remove("hidden");
+        status.classList.add("hidden");
+
+        // Mock extracted values
+        document.getElementById("ocrName").innerText = "Rohan Kumar";
+        document.getElementById("ocrDOB").innerText = "14/08/2002";
+        document.getElementById("ocrID").innerText = "AHDK9201P";
+        document.getElementById("ocrAddress").innerText = "Bangalore, India";
+    }, 2000);
+};
+</script>
+
+<style>
+.preview img {
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
+}
+.status {
+    background:#15202b;
+    margin-top:15px;
+    padding:10px;
+    border-left:3px solid #00e1ff;
+}
+.kyc-output {
+    background:#161b22;
+    padding:15px;
+    border-radius:10px;
+    margin-top:20px;
+}
+.hidden { display:none; }
+</style>

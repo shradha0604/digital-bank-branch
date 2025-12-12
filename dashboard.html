@@ -1,0 +1,78 @@
+<div class="screen">
+    <h2>Dashboard Overview</h2>
+
+    <div class="dash-grid">
+        <div class="dash-card">
+            <h3>Account Balance</h3>
+            <p id="balanceVal">Loading...</p>
+        </div>
+
+        <div class="dash-card">
+            <h3>Recent Transactions</h3>
+            <div id="recentTxns">Loading...</div>
+        </div>
+
+        <div class="dash-card">
+            <h3>Fraud Score</h3>
+            <p id="fraudScore">Loading...</p>
+        </div>
+
+        <div class="dash-card">
+            <h3>Smart Recommendations</h3>
+            <ul>
+                <li>Try Aadhaar-based eKYC</li>
+                <li>Locker access available</li>
+                <li>Download your statement</li>
+            </ul>
+        </div>
+        <div class="dash-card">
+            <h3>Financial Tools</h3>
+            <ul class="tools-list">
+                <li><button onclick="loadScreen('tools')">EMI Calculator</button></li>
+                <li><button onclick="loadScreen('tools')">Loan Eligibility</button></li>
+                <li><button onclick="loadScreen('tools')">Investment Returns</button></li>
+                <li><button onclick="loadScreen('tools')">Tax Calculator</button></li>
+                <li><button onclick="loadScreen('tools')">Savings Planner</button></li>
+                <li><button onclick="loadScreen('tools')">Currency Converter</button></li>
+            </ul>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+<script type="module">
+import { DB } from "../data/mockdb.js";
+import { getTransactions } from "../data/transactions.js";
+import { calculateFraudScore } from "../data/fraud.js";
+
+document.getElementById("balanceVal").innerText =
+    "₹" + DB.accounts[0].balance;
+
+const txns = getTransactions("CUST1001")
+    .slice(-3)
+    .map(t => `<p>${t.type} – ₹${t.amount}</p>`)
+    .join("");
+document.getElementById("recentTxns").innerHTML = txns || "No transactions.";
+
+document.getElementById("fraudScore").innerText =
+    calculateFraudScore({}) + "%";
+</script>
+
+<style>
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.dash-card {
+    background: #161b22;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #30363d;
+}
+
+
+</style>
+

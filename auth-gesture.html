@@ -1,0 +1,48 @@
+<div class="screen">
+    <h2>Gesture-Based Authentication</h2>
+
+    <div class="gesture-box">
+        <div class="pulse"></div>
+        <p>Hold your hand near the sensor...</p>
+    </div>
+
+    <button id="gestureScan">Start Scan</button>
+    <p id="gestureStatus"></p>
+</div>
+
+<script>
+document.getElementById("gestureScan").onclick = () => {
+    const status = document.getElementById("gestureStatus");
+    status.innerText = "Detecting gesture...";
+    setTimeout(() => {
+        const pass = Math.random() > 0.25;
+        status.innerText = pass ? 
+            "Access Granted (gesture recognized)" :
+            "Access Denied (gesture mismatch)";
+    }, 1500);
+};
+</script>
+
+<style>
+.gesture-box {
+    background:#161b22;
+    height:200px;
+    border:1px solid #00e1ff;
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:20px;
+}
+.pulse {
+    width:120px; height:120px;
+    border-radius:50%;
+    border:3px solid #00e1ff;
+    animation:pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow:0 0 0 0 rgba(0,225,255,0.6); }
+    100% { box-shadow:0 0 40px 20px rgba(0,225,255,0); }
+}
+</style>

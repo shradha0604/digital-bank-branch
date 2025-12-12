@@ -1,0 +1,73 @@
+<div class="screen">
+    <h2>Blockchain Hash Verification</h2>
+
+    <textarea id="txnData" placeholder="Enter transaction details…"></textarea>
+
+    <button id="generateHash">Generate Hash</button>
+
+    <div id="hashBox" class="output hidden">
+        <h3>Hash:</h3>
+        <p id="hashValue"></p>
+
+        <h3>Status:</h3>
+        <div id="hashStatus" class="statusBox">Verified – Immutable</div>
+
+        <button id="tamperBtn" class="danger">Simulate Tampering</button>
+    </div>
+</div>
+
+<script type="module">
+import { sha256 } from "../utils/blockchain.js";
+
+let originalHash = "";
+
+document.getElementById("generateHash").onclick = async () => {
+    const txt = document.getElementById("txnData").value.trim();
+    if (!txt) return;
+
+    originalHash = await sha256(txt);
+    document.getElementById("hashValue").innerText = originalHash;
+
+    document.getElementById("hashBox").classList.remove("hidden");
+    document.getElementById("hashStatus").innerText = "Verified – Immutable";
+    document.getElementById("hashStatus").style.color = "#19ff69";
+};
+
+document.getElementById("tamperBtn").onclick = async () => {
+    const tampered = document.getElementById("txnData").value + " (edited)";
+    const newHash = await sha256(tampered);
+
+    document.getElementById("hashValue").innerText = newHash;
+
+    const status = document.getElementById("hashStatus");
+    status.innerText = "Tampered – Hash Mismatch!";
+    status.style.color = "#ff5b5b";
+};
+</script>
+
+<style>
+textarea {
+    width:100%;
+    height:120px;
+    padding:10px;
+    background:#161b22;
+    border:1px solid #30363d;
+    color:white;
+    border-radius:8px;
+}
+.output {
+    margin-top:20px;
+    background:#161b22;
+    padding:15px;
+    border-radius:10px;
+}
+.danger {
+    background:#ff5b5b;
+    color:white;
+    border:none;
+    padding:10px;
+    margin-top:10px;
+    border-radius:6px;
+}
+.hidden { display:none; }
+</style>

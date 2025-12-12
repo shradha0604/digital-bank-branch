@@ -1,0 +1,109 @@
+<div class="screen">
+    <h2>Financial Tools</h2>
+
+    <div class="grid">
+        
+        <!-- EMI CALCULATOR -->
+        <div class="card">
+            <h3>Loan EMI Calculator</h3>
+            <input id="emiAmount" placeholder="Loan Amount (₹)">
+            <input id="emiRate" placeholder="Interest Rate (%)">
+            <input id="emiTenure" placeholder="Tenure (years)">
+            <button class="primary" onclick="calcEMI()">Calculate EMI</button>
+            <p id="emiResult"></p>
+        </div>
+
+        <!-- LOAN ELIGIBILITY -->
+        <div class="card">
+            <h3>Loan Eligibility</h3>
+            <input id="income" placeholder="Monthly Income (₹)">
+            <input id="existingLoan" placeholder="Existing EMI (₹)">
+            <button class="primary" onclick="calcEligibility()">Check Eligibility</button>
+            <p id="eligibilityResult"></p>
+        </div>
+
+        <!-- INVESTMENT RETURNS -->
+        <div class="card">
+            <h3>Investment Returns</h3>
+            <input id="invAmount" placeholder="Monthly Investment (₹)">
+            <input id="invRate" placeholder="Expected Return (%)">
+            <input id="invYears" placeholder="Years">
+            <button class="primary" onclick="calcInvestment()">Calculate Returns</button>
+            <p id="investmentResult"></p>
+        </div>
+
+        <!-- TAX CALCULATOR -->
+        <div class="card">
+            <h3>Tax Calculator</h3>
+            <input id="taxIncome" placeholder="Annual Income (₹)">
+            <button class="primary" onclick="calcTax()">Calculate Tax</button>
+            <p id="taxResult"></p>
+        </div>
+
+        <!-- SAVINGS GOAL -->
+        <div class="card">
+            <h3>Savings Goal Planner</h3>
+            <input id="goalAmount" placeholder="Target Amount (₹)">
+            <input id="goalMonths" placeholder="Months">
+            <button class="primary" onclick="calcSavings()">Plan Savings</button>
+            <p id="savingsResult"></p>
+        </div>
+
+        <!-- CURRENCY CONVERTER -->
+        <div class="card">
+            <h3>Currency Converter</h3>
+            <input id="currencyAmount" placeholder="Amount">
+            <select id="currencyType">
+                <option value="usd">USD → INR</option>
+                <option value="eur">EUR → INR</option>
+            </select>
+            <button class="primary" onclick="convertCurrency()">Convert</button>
+            <p id="currencyResult"></p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function calcEMI() {
+    const P = +emiAmount.value;
+    const R = +emiRate.value / 1200;
+    const N = +emiTenure.value * 12;
+    const emi = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
+    emiResult.innerText = "Monthly EMI: ₹" + emi.toFixed(2);
+}
+
+function calcEligibility() {
+    const income = +income.value;
+    const existing = +existingLoan.value;
+    const eligible = (income * 0.6 - existing) * 60;
+    eligibilityResult.innerText = "Eligible Loan: ₹" + eligible.toFixed(0);
+}
+
+function calcInvestment() {
+    const amt = +invAmount.value * 12;
+    const r = +invRate.value / 100;
+    const yrs = +invYears.value;
+    const future = amt * yrs * (1 + r);
+    investmentResult.innerText = "Estimated Value: ₹" + future.toFixed(0);
+}
+
+function calcTax() {
+    const income = +taxIncome.value;
+    let tax = income > 500000 ? income * 0.2 : income * 0.05;
+    taxResult.innerText = "Estimated Tax: ₹" + tax.toFixed(0);
+}
+
+function calcSavings() {
+    const goal = +goalAmount.value;
+    const months = +goalMonths.value;
+    savingsResult.innerText = "Monthly Savings Needed: ₹" + (goal / months).toFixed(0);
+}
+
+function convertCurrency() {
+    const amt = +currencyAmount.value;
+    const rate = currencyType.value === "usd" ? 83 : 90;
+    currencyResult.innerText = "Converted Amount: ₹" + (amt * rate).toFixed(2);
+}
+</script>
+
