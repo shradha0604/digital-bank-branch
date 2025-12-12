@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ZeroTouch Mobile App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- QR generator -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+  <style>
+    body {
+      margin:0;
+      background:#f0f4ff;
+      font-family:Arial;
+    }
+    .header {
+      background: linear-gradient(90deg, #0057d9, #00358a);
+      padding:20px;
+      color:white;
+      text-align:center;
+      font-size:22px;
+      font-weight:bold;
+    }
+    .card {
+      background:white;
+      width:90%;
+      max-width:420px;
+      margin:20px auto;
+      padding:20px;
+      border-radius:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    }
+    input {
+      width:92%;
+      padding:12px;
+      margin-top:10px;
+      border-radius:10px;
+      border:1px solid #aab6d1;
+      font-size:16px;
+    }
+    button {
+      width:100%;
+      padding:14px;
+      background:#0057d9;
+      color:white;
+      border:none;
+      border-radius:10px;
+      font-size:16px;
+      font-weight:bold;
+      margin-top:12px;
+    }
+    button:hover { background:#003f9e; }
+    #qrcode {
+      margin-top:20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="header">ZeroTouch Mobile Banking</div>
+
+<!---------------- LOGIN PAGE ---------------->
+<div id="loginCard" class="card">
+  <h3>Login</h3>
+
+  <input id="loginPhone" placeholder="Enter Phone Number">
+
+  <button onclick="sendLoginOtp()">Send OTP</button>
+
+  <input id="loginOtp" placeholder="Enter OTP" style="display:none;">
+  <button id="verifyOtpBtn" onclick="verifyLoginOtp()" style="display:none;">Verify OTP</button>
+
+  <p id="loginMsg"></p>
+</div>
+
+<!---------------- DASHBOARD ---------------->
+<div id="dashboardCard" class="card" style="display:none;">
+  <h3 id="dashWelcome">Welcome</h3>
+
+  <button onclick="registerBiometric()">Register Biometrics</button>
+  <button onclick="authenticateBiometric()">Authenticate</button>
+  <button onclick="generateQR()">Generate QR</button>
+
+  <div id="qrBox" style="display:none; text-align:center;">
+    <div id="qrcode"></div>
+  </div>
+</div>
+
+<script>
+const BACKEND = window.location.origin;
+
+let customerId = null;
+let customerName = null;
+
+/* ---------------- LOGIN FLOW ---------------- */
+
+async function sendLoginOtp() {
+  const phone = document.getElementById("loginPhone").value.trim();
+
+  if (!phone) { alert("Enter phone number"); return; }
+
+  await fetch(`${BACKEND}/auth/sendOtpPhone`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ phone })
+  });
+
+  document.getElementById("loginOtp").style.display="block";
+  document.getElementById("verifyOtpBtn").style.display="block";
+  document.getElementById("loginMsg").innerText = "OTP sent!";
+}
+
+async function verifyLoginOtp() {
+  const phone = document.getElementById("loginPhone").value.trim();
+  const otp = document.getElementById("loginOtp").value.trim();
+
+  const r = await fetch(`${BACKEND}/auth/verifyOtpPhone`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ phone, otp })
+  });
+
+  const j = await r.json();
+
+  if (!j.ok) {
+    document.getElementById("loginMsg").innerText = "Invalid OTP";
+    return;
+  }
+
+  // At login, fetch the user from backend memory
+  const list = await fetch(`${BACKEND}/user/check`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ name:"", phone })
+  });
+
+  const res = await list.json();
+
+  if (!res.exists) {
+    document.getElementById("loginMsg").innerText =
+      "Account not found — please register at kiosk.";
+    return;
+  }
+
+  // Load data
+  customerId = res.customerId;
+  customerName = res.name;
+
+  localStorage.setItem("customerId", customerId);
+  localStorage.setItem("customerName", customerName);
+
+  // Move to dashboard
+  document.getElementById("loginCard").style.display = "none";
+  document.getElementById("dashboardCard").style.display = "block";
+  document.getElementById("dashWelcome").innerText =
+    "Welcome, " + customerName + "!";
+}
+
+/* ---------------- BIOMETRIC REGISTER ---------------- */
+
+function b64ToArr(b64) {
+  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+}
+
+async function registerBiometric() {
+  const r = await fetch(`${BACKEND}/webauthn/registerRequest/${customerId}`);
+  const data = await r.json();
+
+  const publicKey = {
+    challenge: b64ToArr(data.challenge),
+    rp: { name: "ZeroTouch Bank" },
+    user: {
+      id: b64ToArr(btoa(customerId)),
+      name: customerId,
+      displayName: customerName
+    },
+    pubKeyCredParams: [{ type:"public-key", alg:-7 }],
+    authenticatorSelection: { userVerification:"preferred" },
+    timeout: 60000
+  };
+
+  const cred = await navigator.credentials.create({ publicKey });
+  const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+
+  await fetch(`${BACKEND}/webauthn/registerResponse`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      customerId,
+      credentialId: credId,
+      publicKey: "dummy"
+    })
+  });
+
+  alert("Biometric Registered!");
+}
+
+/* ---------------- AUTHENTICATE ---------------- */
+
+async function authenticateBiometric() {
+  const r = await fetch(`${BACKEND}/webauthn/authRequest/${customerId}`);
+  const data = await r.json();
+
+  const publicKey = {
+    challenge: b64ToArr(data.challenge),
+    allowCredentials: data.allowCredentials.map(id => ({
+      id: b64ToArr(id),
+      type: "public-key"
+    })),
+    userVerification:"preferred",
+    timeout:60000
+  };
+
+  const assertion = await navigator.credentials.get({ publicKey });
+  const credId = btoa(String.fromCharCode(...new Uint8Array(assertion.rawId)));
+
+  await fetch(`${BACKEND}/webauthn/authResponse`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ customerId, credentialId: credId })
+  });
+
+  alert("Authenticated!");
+}
+
+/* ---------------- GENERATE QR ---------------- */
+
+async function generateQR(){
+  const r = await fetch(`${BACKEND}/auth/mobile/generateQr`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ customerId })
+  });
+
+  const j = await r.json();
+
+  if (!j.ok) {
+    alert("QR generation failed.");
+    return;
+  }
+
+  document.getElementById("qrBox").style.display="block";
+  document.getElementById("qrcode").innerHTML = "";
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: j.token,
+    width: 180,
+    height: 180,
+    colorDark: "#00358a",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+</script>
+</body>
+</html>
+
+

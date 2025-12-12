@@ -1,0 +1,331 @@
+<<!DOCTYPE html>
+<html>
+<head>
+  <title>ZeroTouch Kiosk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body { 
+      margin:0; 
+      font-family:Arial; 
+      background:#f0f4ff;
+    }
+    .header {
+      background: linear-gradient(90deg, #0057d9, #00358a);
+      padding: 20px;
+      color:white;
+      font-size: 24px;
+      text-align:center;
+      font-weight:bold;
+    }
+    .card {
+      background:white;
+      margin:20px auto;
+      padding:20px;
+      width:90%;
+      max-width:420px;
+      border-radius:14px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.15);
+      display:none;
+    }
+    input {
+      width:92%;
+      padding:12px;
+      border:1px solid #aaa;
+      border-radius:10px;
+      margin-top:10px;
+    }
+    button {
+      width:100%;
+      padding:12px;
+      background:#0057d9;
+      border:none;
+      color:white;
+      margin-top:12px;
+      border-radius:10px;
+      font-size:16px;
+      font-weight:bold;
+    }
+    button:hover { background:#003a9c; }
+    .small-btn {
+      background:#008f39 !important;
+    }
+    #qr-reader {
+      width:290px; 
+      margin:auto; 
+      display:none;
+    }
+    #previewImg, #regPreview {
+      width:150px;
+      height:150px;
+      border-radius:10px;
+      object-fit:cover;
+      margin-top:10px;
+      display:none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="header">ZeroTouch Banking Kiosk</div>
+
+<!-- PAGE 1 — WELCOME -->
+<div id="pageWelcome" class="card" style="display:block;">
+  <h2>Welcome!</h2>
+  <p>Select an option:</p>
+
+  <button onclick="goExisting()">Existing Customer</button>
+  <button onclick="goNew()">New Customer</button>
+</div>
+
+<!-- PAGE 2 — EXISTING CUSTOMER LOGIN -->
+<div id="pageExisting" class="card">
+  <h2>Login with Phone</h2>
+
+  <input id="exPhone" placeholder="Enter Phone Number">
+
+  <button onclick="sendPhoneOtp()">Send OTP</button>
+
+  <input id="exOtp" placeholder="Enter OTP" style="display:none;">
+  <button id="exVerifyBtn" onclick="verifyPhoneOtp()" style="display:none;">Verify OTP</button>
+
+  <p id="exResult"></p>
+</div>
+
+<!-- PAGE 3 — QR SCAN PAGE -->
+<div id="pageQR" class="card">
+  <h2>Scan QR Code</h2>
+  <div id="qr-reader"></div>
+  <input id="tokenInput" placeholder="Or enter token manually">
+  <button onclick="verifyToken()">Verify Token</button>
+  <div id="verifyResult"></div>
+  <img id="userPhoto" style="width:150px;height:150px;border-radius:10px;margin-top:10px;display:none;">
+</div>
+
+<!-- PAGE 4 — NEW CUSTOMER REGISTRATION -->
+<div id="pageRegister" class="card">
+  <h2>Create New Account</h2>
+
+  <input id="regName" placeholder="Full Name">
+  <input id="regAge" placeholder="Age">
+  <input id="regDob" type="date" placeholder="DOB">
+  <input id="regGender" placeholder="Gender (M/F/O)">
+  <input id="regPhone" placeholder="Phone Number">
+  <input id="regEmail" placeholder="Email ID">
+
+  <button onclick="openCamReg()">Capture Selfie</button>
+  <video id="regCam" width="200" height="170" autoplay style="display:none;"></video>
+  <img id="regPreview">
+
+  <button onclick="sendRegPhoneOtp()">Send Phone OTP</button>
+  <input id="regPhoneOtp" placeholder="Phone OTP" style="display:none;">
+  
+  <button onclick="sendRegEmailOtp()">Send Email OTP</button>
+  <input id="regEmailOtp" placeholder="Email OTP" style="display:none;">
+
+  <button class="small-btn" onclick="createFullAccount()">Create Account</button>
+
+  <p id="regResult"></p>
+</div>
+
+<!-- PAGE 5 — ACCOUNT CREATED -->
+<div id="pageSuccess" class="card">
+  <h2>Account Created!</h2>
+  <p>Download the ZeroTouch Mobile App.<br>Login using your phone number.</p>
+  <button onclick="goHome()">Return Home</button>
+</div>
+
+<script>
+const BACKEND = window.location.origin;
+
+// NAVIGATION
+function goExisting(){
+  hideAll(); document.getElementById("pageExisting").style.display="block";
+}
+function goNew(){
+  hideAll(); document.getElementById("pageRegister").style.display="block";
+}
+function goQR(){
+  hideAll(); startQR(); document.getElementById("pageQR").style.display="block";
+}
+function goHome(){
+  hideAll(); document.getElementById("pageWelcome").style.display="block";
+}
+function hideAll(){
+  document.querySelectorAll('.card').forEach(c=>c.style.display='none');
+}
+
+// -------------------- EXISTING CUSTOMER LOGIN --------------------
+async function sendPhoneOtp(){
+  const phone = document.getElementById("exPhone").value.trim();
+  const r = await fetch(`${BACKEND}/auth/sendOtpPhone`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ phone })
+  });
+  const j = await r.json();
+
+  document.getElementById("exOtp").style.display="block";
+  document.getElementById("exVerifyBtn").style.display="block";
+  document.getElementById("exResult").innerText = "OTP sent!";
+}
+
+async function verifyPhoneOtp(){
+  const phone = document.getElementById("exPhone").value.trim();
+  const otp = document.getElementById("exOtp").value.trim();
+
+  const r = await fetch(`${BACKEND}/auth/verifyOtpPhone`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ phone, otp })
+  });
+  const j = await r.json();
+
+  if(j.ok){
+    document.getElementById("exResult").innerText = "Phone Verified!";
+    setTimeout(goQR, 1000);
+  } else {
+    document.getElementById("exResult").innerText = "Incorrect OTP!";
+  }
+}
+
+// ---------------- QR SCANNING ----------------
+let qrObj = null;
+function startQR(){
+  const el = document.getElementById("qr-reader");
+  el.style.display="block";
+
+  qrObj = new Html5Qrcode("qr-reader");
+  qrObj.start(
+    { facingMode:"environment" },
+    { fps:10, qrbox:240 },
+    decoded => {
+      document.getElementById("tokenInput").value = decoded;
+      qrObj.stop();
+      verifyToken();
+    }
+  );
+}
+
+async function verifyToken(){
+  const token = document.getElementById("tokenInput").value.trim();
+
+  const r = await fetch(`${BACKEND}/auth/kiosk/verifyQr`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ token })
+  });
+
+  const j = await r.json();
+  if(j.ok){
+    document.getElementById("verifyResult").innerHTML = 
+      `✔ Verified: <b>${j.name}</b>`;
+    if(j.photo){
+      const img = document.getElementById("userPhoto");
+      img.src = j.photo;
+      img.style.display="block";
+    }
+  } else {
+    document.getElementById("verifyResult").innerHTML = "❌ Invalid Token";
+  }
+}
+
+// ---------------- NEW ACCOUNT REGISTRATION ----------------
+let regStream = null;
+let regPhoto = null;
+
+async function openCamReg(){
+  const vid = document.getElementById("regCam");
+  vid.style.display = "block";
+
+  regStream = await navigator.mediaDevices.getUserMedia({ video:true });
+  vid.srcObject = regStream;
+  setTimeout(captureRegPhoto,2000);
+}
+
+function captureRegPhoto(){
+  const vid = document.getElementById("regCam");
+  const canvas = document.createElement("canvas");
+  canvas.width = 200; canvas.height=200;
+  canvas.getContext("2d").drawImage(vid,0,0,200,200);
+
+  regPhoto = canvas.toDataURL("image/jpeg");
+  document.getElementById("regPreview").src = regPhoto;
+  document.getElementById("regPreview").style.display="block";
+
+  vid.style.display="none";
+  regStream.getTracks().forEach(t=>t.stop());
+}
+
+async function sendRegPhoneOtp(){
+  const phone = document.getElementById("regPhone").value.trim();
+  await fetch(`${BACKEND}/auth/sendOtpPhone`,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ phone })
+  });
+  document.getElementById("regPhoneOtp").style.display="block";
+}
+
+async function sendRegEmailOtp(){
+  const email = document.getElementById("regEmail").value.trim();
+  await fetch(`${BACKEND}/auth/sendOtpEmail`,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ email })
+  });
+  document.getElementById("regEmailOtp").style.display="block";
+}
+
+async function createFullAccount(){
+  const data = {
+    name: document.getElementById("regName").value.trim(),
+    age: document.getElementById("regAge").value.trim(),
+    dob: document.getElementById("regDob").value.trim(),
+    gender: document.getElementById("regGender").value.trim(),
+    phone: document.getElementById("regPhone").value.trim(),
+    email: document.getElementById("regEmail").value.trim(),
+    pin: "0000",
+    photoBase64: regPhoto
+  };
+
+  const phoneOtp = document.getElementById("regPhoneOtp").value.trim();
+  const emailOtp = document.getElementById("regEmailOtp").value.trim();
+
+  // verify both OTPs
+  let verifyPhone = await fetch(`${BACKEND}/auth/verifyOtpPhone`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ phone:data.phone, otp:phoneOtp })
+  });
+  let verifyEmail = await fetch(`${BACKEND}/auth/verifyOtpEmail`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ email:data.email, otp:emailOtp })
+  });
+
+  let j1 = await verifyPhone.json();
+  let j2 = await verifyEmail.json();
+
+  if(!j1.ok){ alert("Incorrect phone OTP!"); return; }
+  if(!j2.ok){ alert("Incorrect email OTP!"); return; }
+
+  const acc = await fetch(`${BACKEND}/user/createFull`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
+  });
+
+  const res = await acc.json();
+  if(res.ok){
+    hideAll();
+    document.getElementById("pageSuccess").style.display="block";
+  } else {
+    document.getElementById("regResult").innerText = "❌ Failed";
+  }
+}
+
+</script>
+</body>
+</html>
